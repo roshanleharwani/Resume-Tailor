@@ -1,61 +1,95 @@
-Resume Tailor — AI-Powered Resume Customization Platform
+# Resume Tailor
+**AI-Powered Resume Customization Platform**
 
-Resume Tailor is a production-grade SaaS application that generates job-specific, ATS-optimized resumes using a multi-agent AI architecture.
-Instead of being a simple AI wrapper, the system orchestrates multiple specialized agents to analyze resumes, job descriptions, and target roles to produce concise, recruiter-friendly one-page resumes.
+---
 
-The platform supports PDF and LaTeX outputs, allowing users to further customize resumes while retaining professional formatting.
+## Overview
 
-Key Features
+Resume Tailor is an intelligent SaaS application that generates job-specific, ATS-optimized resumes using a multi-agent AI architecture.  
+Instead of acting as a simple AI wrapper, the system coordinates multiple specialized agents to analyze a candidate’s resume, the target job description, and role expectations to produce a concise, recruiter-ready one-page resume.
 
-Resume & Job Description Upload
+The platform also provides PDF and LaTeX outputs, allowing users to further customize resumes while retaining professional formatting standards.
 
-Multi-Agent Resume Optimization (CrewAI)
+---
 
-Job requirement analysis
+## Problem Statement
 
-Skill and keyword alignment
+Recruiters review hundreds of resumes daily and expect:
+- Relevance over verbosity
+- Clear role alignment
+- Clean, structured formatting
+- One-page summaries
 
-Content rewriting and structuring
+Generic resumes often fail automated screening systems or do not clearly match job requirements. Resume Tailor addresses this gap by dynamically restructuring resumes for each role rather than forcing candidates to manually rewrite them.
 
-ATS-focused optimization
+---
 
-One-Page Resume Generation
+## Solution Approach
 
-PDF & LaTeX Downloads
+Resume Tailor treats resume optimization as a collaborative AI problem rather than a single prompt-based generation task.
 
-Resume History
+Key design principles:
+- Role-aware content rewriting
+- ATS-friendly keyword alignment
+- Human-readable formatting
+- Separation of analysis, rewriting, and formatting responsibilities
 
-User Profile & Settings
+---
 
-Asynchronous Processing with Celery
+## Core Features
 
-Tech Stack
-Frontend
+### Multi-Agent Resume Optimization
+- Uses CrewAI to orchestrate specialized agents
+- Each agent focuses on a distinct responsibility:
+  - Job requirement analysis
+  - Skill and keyword alignment
+  - Content rewriting and prioritization
+  - Final resume structuring
 
-Next.js (App Router)
+### One-Page Resume Generation
+- Automatically condenses content to recruiter-preferred length
+- Highlights only role-relevant experience and skills
 
-Tailwind CSS
+### PDF & LaTeX Export
+- Download final resumes as PDF
+- Access LaTeX source files for advanced customization
 
-shadcn/ui
+### Resume History
+- Track previously generated resumes
+- Reuse or regenerate resumes for different job roles
 
-Framer Motion
+### User Profile & Settings
+- Manage roles, preferences, and resume metadata
+- Persistent user experience across sessions
 
-Backend
+### Asynchronous Processing
+- Heavy AI operations run in the background
+- Ensures responsiveness and scalability
 
-Flask (REST API)
+---
 
-CrewAI (multi-agent orchestration)
+## Technology Stack
 
-Celery (background task execution)
+### Frontend
+- Next.js
+- Tailwind CSS
+- shadcn/ui
+- Framer Motion
 
-Redis (message broker)
+### Backend
+- Flask
+- CrewAI
+- Celery
+- Redis
 
-Database & Auth
+### Database & Authentication
+- Supabase
 
-Supabase (Auth + Database)
+### Resume Compilation
+- LaTeX
+- latexmk
 
-Resume Compilation
+---
 
-LaTeX
+## System Architecture (Conceptual)
 
-latexmk (PDF compilation)
