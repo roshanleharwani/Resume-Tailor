@@ -1,0 +1,130 @@
+jd_task:
+  description: >
+    Analyze the provided job description text: {jd_text}.
+    Identify and extract only what is explicitly present in the JD:
+      - Required skills
+      - Technologies and tools
+      - Responsibilities
+      - Qualifications and role expectations
+    
+    Do not infer or assume details that are not directly written in the JD.
+  
+  expected_output: >
+    A structured JSON object with:
+      {
+        "skills": [...],
+        "technologies": [...],
+        "responsibilities": [...],
+        "qualifications": [...]
+      }
+  agent: jd_agent
+
+
+resume_task:
+  description: >
+    Your first objective is to extract the full text from the PDF resume.
+
+    The resume PDF is located at the following path or URL:
+    {resume_url}
+
+    You MUST use the available tool **"Dynamic PDF Tool"**.
+
+    The tool must be called EXACTLY in this format:
+
+    ```
+    Action: Dynamic PDF Tool
+    Action Input:
+      {
+        "pdf_path": "{resume_url}",
+        "query": "extract all text from the resume"
+      }
+    ```
+
+    IMPORTANT RULES:
+      - "pdf_path" is REQUIRED and must be the provided resume path.
+      - "query" must be a plain string.
+      - Do NOT omit pdf_path.
+      - Do NOT nest fields inside extra objects.
+      - If the tool fails, retry once with:
+        {
+          "pdf_path": "{resume_url}",
+          "query": "extract text"
+        }
+
+    After extracting the text:
+      - Compare the resume content with the JD output.
+      - Identify overlapping skills and keywords.
+      - Identify missing but required skills.
+      - Identify strengths and weaknesses strictly based on existing resume content.
+
+  expected_output: >
+    {
+      "resume_text": "full extracted resume text"
+    }
+
+  agent: resume_agent
+
+
+writer_task:
+  description: >
+    Rewrite the resume using the parsed resume text and the JD comparison analysis.
+
+    Strict rules:
+      - Do NOT fabricate or add new information.
+      - You MUST preserve every major original section (Education, Skills, Experience, Projects, etc.).
+      - Improve phrasing, clarity, and impact without altering meaning.
+      - Reorder, rephrase, or enhance sentences ONLY to improve alignment with the JD.
+      - You may integrate JD keywords ONLY when they genuinely apply to existing content.
+      - You may NOT create new accomplishments, new tools, new experience, or new projects.
+
+    Your output should be a polished text version of the resume, ready to be converted to LaTeX.
+
+  expected_output: >
+    A well-structured, polished plain-text resume containing:
+      - All original content
+      - Improved phrasing
+      - JD-aligned keywords (no fabrication)
+  agent: writer_agent
+
+
+latex_task:
+  description: >
+    Convert the rewritten resume into a polished, professional,
+    single-page LaTeX document with clean formatting and highlighted sections.
+
+    Requirements:
+      - Produce valid LaTeX code ONLY.
+      - Start immediately with: \documentclass
+      - Must fit within ONE PAGE.
+      - Use reduced margins (e.g., geometry package).
+      - Highlight important details (job titles, skills, dates).
+      - Use compact, ATS-friendly section layout.
+      - Preserve content structure: Summary, Skills, Experience, Projects,
+        Education, and Certifications (if provided).
+      - Ensure the file compiles without modification.
+      - Save output as: tailored_resume.tex
+  expected_output: >
+    A fully valid, well-formatted, single-page LaTeX resume document.
+  agent: latex_agent
+
+final_alignment_task:
+  description: >
+    Perfectly align, compress, and finalize the LaTeX resume into a clean,
+    professional format Ensure optimal spacing, consistent
+    formatting, properly aligned headers, compact bullet lists, and clear
+    section dividers.
+
+    Requirements:
+      - Output ONLY valid LaTeX code.
+      - Optimize vertical spacing .
+      - Add subtle section dividers (e.g., horizontal rule).
+      - Align company name, job title, and dates consistently.
+      - Maintain readability while minimizing whitespace.
+      - Make headings uniform and properly aligned.
+      - Produce a layout that is highly ATS-friendly.
+      - Do not add commentary or backticks.
+
+  expected_output: >
+    A final, fully optimized, professionally aligned single-page LaTeX resume document.
+  agent: final_alignment_agent
+
