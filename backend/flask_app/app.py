@@ -24,6 +24,11 @@ def set_status(job_id, status, payload=None):
     r.set(key, json.dumps(data), ex=60 * 60 * 24)  # keep 24 hours (adjust)
 
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"}), 200
+
+
 @app.route("/start-job", methods=["POST"])
 def start_job():
     body = request.get_json(force=True)
