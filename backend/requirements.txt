@@ -29,7 +29,6 @@ cloudinary==1.41.0
 # CrewAI Core
 # -------------------------
 crewai==0.41.1
-crewai-tools==0.8.3
 
 # -------------------------
 # LLM & Utilities (CrewAI deps safety)
@@ -42,3 +41,4 @@ typing-extensions>=4.10.0
 # PDF / LaTeX / System Utilities
 # -------------------------
 PyPDF2==3.0.1
+requests>=2.31.0

@@ -5,7 +5,6 @@ from typing import List
 from crewai.llm import LLM
 import os
 from dotenv import load_dotenv
-from crewai_tools import PDFSearchTool
 from resume_tailor.tools.pdf_search_tool import DynamicPDFTool
 
 # pdftool = PDFSearchTool(pdf=r"E:\Resume-Project\ResumeTailor\Roshan's-Resume.pdf")

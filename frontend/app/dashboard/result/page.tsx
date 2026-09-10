@@ -4,8 +4,17 @@
 // pdfjs-dist uses browser-only APIs (DOMMatrix) that crash Node.js SSR.
 export const dynamic = "force-dynamic";
 
+import dynamic from "next/dynamic";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
-import { ResultPreviewClient as ResultPreview } from "@/components/result-preview-client";
+// Lazy-load ResultPreviewClient with ssr:false — react-pdf uses browser-only
+// DOMMatrix API which crashes Node.js at module evaluation time during build.
+const ResultPreview = dynamic(
+  () =>
+    import("@/components/result-preview-client").then(
+      (m) => m.ResultPreviewClient
+    ),
+  { ssr: false, loading: () => <div className="text-center text-muted-foreground">Loading preview…</div> }
+);
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

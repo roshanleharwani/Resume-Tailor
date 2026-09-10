@@ -1,11 +1,14 @@
-# tools/dynamic_pdf_tool.py
+﻿# tools/pdf_search_tool.py
+# Uses PyPDF2 directly instead of crewai-tools PDFSearchTool
+# (crewai-tools requires lancedb<0.6.0 which no longer exists on PyPI)
 from crewai.tools import BaseTool
-from crewai_tools import PDFSearchTool
 from typing import Type
 from pydantic import BaseModel, Field
 import os
 import tempfile
 import requests
+import PyPDF2
+import io
 
 
 class DynamicPDFInput(BaseModel):
@@ -18,35 +21,51 @@ class DynamicPDFInput(BaseModel):
 class DynamicPDFTool(BaseTool):
     name: str = "Dynamic PDF Tool"
     description: str = (
-        "Downloads (if needed) and searches a given PDF file dynamically."
+        "Downloads (if needed) and extracts text from a given PDF file dynamically."
     )
     args_schema: Type[BaseModel] = DynamicPDFInput
 
     def _run(self, pdf_path: str, query: str = None) -> str:
         try:
-            local_pdf_path = pdf_path
-
-            # ✅ If URL → download to temp file
+            # If URL -> download to bytes
             if pdf_path.startswith("http://") or pdf_path.startswith("https://"):
                 response = requests.get(pdf_path, timeout=30)
                 response.raise_for_status()
+                pdf_bytes = io.BytesIO(response.content)
+            else:
+                if not os.path.exists(pdf_path):
+                    return "❌ Error: PDF could not be accessed."
+                with open(pdf_path, "rb") as f:
+                    pdf_bytes = io.BytesIO(f.read())
 
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-                    tmp.write(response.content)
-                    local_pdf_path = tmp.name
+            # Extract all text with PyPDF2
+            reader = PyPDF2.PdfReader(pdf_bytes)
+            text_parts = []
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    text_parts.append(text)
 
-            # ✅ Validate local file
-            if not os.path.exists(local_pdf_path):
-                return f"❌ Error: PDF could not be accessed."
+            full_text = "\n".join(text_parts)
 
-            # Initialize PDFSearchTool with LOCAL file
-            pdf_tool = PDFSearchTool(pdf=local_pdf_path)
+            if not full_text.strip():
+                return "⚠️ PDF loaded but no extractable text found."
 
             if not query:
-                return "✅ PDF loaded successfully."
+                return f"✅ PDF loaded successfully.\n\n{full_text}"
 
-            result = pdf_tool.run(query)
-            return f"📄 Query Result:\n{result}"
+            # Simple keyword search through extracted text
+            query_lower = query.lower()
+            matching_lines = [
+                line for line in full_text.split("\n")
+                if query_lower in line.lower()
+            ]
+
+            if matching_lines:
+                return f"📄 Query Result for '{query}':\n" + "\n".join(matching_lines[:20])
+            else:
+                # Return full text if no keyword match — let the LLM figure it out
+                return f"📄 Full resume text (query '{query}' not found as keyword):\n{full_text}"
 
         except Exception as e:
             return f"❌ Error while processing PDF: {e}"
