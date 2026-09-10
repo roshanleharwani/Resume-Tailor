@@ -1,15 +1,16 @@
-# gunicorn.conf.py — production WSGI server config for Render
+ï»¿# gunicorn.conf.py â€” production WSGI server config for Render
 import os
 
-# Bind to the port Render assigns (default 5000)
 port = os.environ.get("PORT", "5000")
 bind = f"0.0.0.0:{port}"
 
-# Number of worker processes
-workers = 2
+# 1 worker process with multiple threads
+# Threading is important since CrewAI jobs run as background threads
+workers = 1
+threads = 4
 
-# Timeout (CrewAI jobs can be long — Celery handles that, not gunicorn)
-timeout = 120
+# Long timeout â€” jobs can take several minutes
+timeout = 600
 
 # Log to stdout so Render captures it
 accesslog = "-"

@@ -1,38 +1,29 @@
-# render.yaml — Render Blueprint for Resume Tailor
-# Defines all 4 services: Redis, Flask API, Celery Worker, Next.js Frontend
+﻿# render.yaml — Render Blueprint for Resume Tailor
+# Services: Redis (job status), Flask API (with inline threading), Next.js Frontend
 
 services:
   # ─────────────────────────────────────────────
-  # 1. Redis (managed)
+  # 1. Redis (managed) — stores job status
   # ─────────────────────────────────────────────
   - type: redis
     name: resume-tailor-redis
     plan: free
     maxmemoryPolicy: noeviction
-    ipAllowList: []   # only allow internal access
+    ipAllowList: []
 
   # ─────────────────────────────────────────────
-  # 2. Flask API (Web Service)
+  # 2. Flask API (Web Service, Docker)
+  #    Runs CrewAI jobs in background threads
   # ─────────────────────────────────────────────
   - type: web
     name: resume-tailor-api
     runtime: docker
     dockerfilePath: ./backend/Dockerfile.api
     dockerContext: ./backend
-    plan: starter
+    plan: free
     healthCheckPath: /health
     envVars:
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: resume-tailor-redis
-          property: connectionString
-      - key: BROKER_URL
-        fromService:
-          type: redis
-          name: resume-tailor-redis
-          property: connectionString
-      - key: BACKEND_URL
         fromService:
           type: redis
           name: resume-tailor-redis
@@ -55,48 +46,7 @@ services:
         sync: false
 
   # ─────────────────────────────────────────────
-  # 3. Celery Worker (Background Worker)
-  # ─────────────────────────────────────────────
-  - type: worker
-    name: resume-tailor-worker
-    runtime: docker
-    dockerfilePath: ./backend/Dockerfile.worker
-    dockerContext: ./backend
-    plan: starter
-    envVars:
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: resume-tailor-redis
-          property: connectionString
-      - key: BROKER_URL
-        fromService:
-          type: redis
-          name: resume-tailor-redis
-          property: connectionString
-      - key: BACKEND_URL
-        fromService:
-          type: redis
-          name: resume-tailor-redis
-          property: connectionString
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_ANON_KEY
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: CLOUDINARY_CLOUD_NAME
-        sync: false
-      - key: CLOUDINARY_API_KEY
-        sync: false
-      - key: CLOUDINARY_API_SECRET
-        sync: false
-
-
-  # ─────────────────────────────────────────────
-  # 4. Next.js Frontend (Web Service)
+  # 3. Next.js Frontend (Web Service)
   # ─────────────────────────────────────────────
   - type: web
     name: resume-tailor-frontend
@@ -113,7 +63,7 @@ services:
       - key: NEXT_PUBLIC_SUPABSE_DB_PASSWORD
         sync: false
       - key: NEXT_PUBLIC_FLASK_URL
-        sync: false   # Set to your Flask service URL after first deploy, e.g. https://resume-tailor-api.onrender.com
+        sync: false   # Set to https://resume-tailor-api.onrender.com after first deploy
       - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
         sync: false
       - key: NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET

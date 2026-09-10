@@ -11,9 +11,8 @@ gunicorn==22.0.0
 python-dotenv==1.0.1
 
 # -------------------------
-# Task Queue & Broker
+# Job Status Storage
 # -------------------------
-celery==5.4.0
 redis==5.0.7
 
 # -------------------------
