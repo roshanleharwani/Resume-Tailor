@@ -1,4 +1,4 @@
-﻿# render.yaml — Render Blueprint for Resume Tailor
+# render.yaml — Render Blueprint for Resume Tailor
 # Services: Redis (job status), Flask API (with inline threading), Next.js Frontend
 
 services:
@@ -13,7 +13,7 @@ services:
 
   # ─────────────────────────────────────────────
   # 2. Flask API (Web Service, Docker)
-  #    Runs CrewAI jobs in background threads
+  #    Runs crewai-tools==0.8.4 in background threads
   # ─────────────────────────────────────────────
   - type: web
     name: resume-tailor-api
@@ -52,7 +52,7 @@ services:
     name: resume-tailor-frontend
     runtime: node
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --legacy-peer-deps && npm run build
     startCommand: npm start
     plan: free
     envVars:
