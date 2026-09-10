@@ -1,5 +1,9 @@
 "use client";
 
+// Prevent Next.js from prerendering this page at build time.
+// pdfjs-dist uses browser-only APIs (DOMMatrix) that crash Node.js SSR.
+export const dynamic = "force-dynamic";
+
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { ResultPreviewClient as ResultPreview } from "@/components/result-preview-client";
 import { motion } from "framer-motion";
